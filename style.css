@@ -158,13 +158,13 @@ a:hover {
   color: #000;            /* 近黑色 */
 }
 
-/* 名字旁边的邮件图标 */
+/* 名字旁边的社交图标 */
 .email-icon {
   font-size: 20px;           /* 图标大小 */
   color: #555;               /* 默认灰色 */
   text-decoration: none;
   vertical-align: middle;    /* 和文字垂直居中对齐 */
-  margin-left: 8px;          /* 和名字的间距 */
+  margin-left: 10px;         /* 图标之间的间距 */
 }
 
 .email-icon:hover {

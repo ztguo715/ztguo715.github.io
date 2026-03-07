@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ====== 页面标题（浏览器标签栏显示的文字） ====== -->
+  <title>Zitian Guo</title>
+
+  <!-- ====== 样式文件 ====== -->
+  <!-- 自定义样式，所有布局/颜色/字号都在这里改 -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Fonts: Source Sans 3（正文字体） -->
+  <!-- 如果想换字体，去 https://fonts.google.com 挑一个，替换下面这三行 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 图标库（用于邮件信封图标等） -->
+  <!-- 图标查找：https://fontawesome.com/icons  用法：<i class="fas fa-xxx"></i> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<!-- ====== 整个页面的容器，宽度在 style.css 的 .container 里改 ====== -->
+<div class="container">
+
+  <!-- ============================================================
+       第一部分：顶部区域（左边头像轮播 + 右边名字和自我介绍）
+       ============================================================ -->
+  <header class="bio-section">
+
+    <!-- 左侧：头像轮播图 -->
+    <!-- 要换照片：替换 1.jpg / 2.jpg 文件，或者改下面的 src -->
+    <!-- 要加更多照片：复制一行 <img>，并在 carousel-dots 里多加一个 <span class="dot"> -->
+    <div class="bio-photo">
+      <div class="carousel">
+        <div class="carousel-inner">
+          <img src="1.jpg" alt="Zitian Guo" class="carousel-img active"> <!-- 第1张（默认显示） -->
+          <img src="2.jpg" alt="Zitian Guo" class="carousel-img">        <!-- 第2张 -->
+        </div>
+        <button class="carousel-btn prev" aria-label="Previous photo">&#8249;</button> <!-- 左箭头 -->
+        <button class="carousel-btn next" aria-label="Next photo">&#8250;</button>     <!-- 右箭头 -->
+        <div class="carousel-dots">
+          <span class="dot active"></span> <!-- 第1个圆点（对应第1张） -->
+          <span class="dot"></span>        <!-- 第2个圆点（对应第2张） -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：名字 + 邮件图标 + 自我介绍 -->
+    <div class="bio-text">
+      <!-- 名字 + 邮件图标 -->
+      <!-- 改邮箱：修改 mailto: 后面的地址和 title 属性 -->
+      <!-- 加更多图标：复制 <a> 标签，换 href 和 fa-xxx 图标名 -->
+      <!-- 常用图标：fa-graduation-cap（学术帽）、fa-github（GitHub）、fa-google-scholar（需用 ai class） -->
+      <h1>Zitian Guo <a href="mailto:zig005@ucsd.edu" class="email-icon" title="zig005@ucsd.edu"><i class="fas fa-envelope"></i></a></h1>
+
+      <!-- 自我介绍第一段 -->
+      <!-- 链接格式：<a href="网址" target="_blank">显示文字</a> -->
+      <!-- target="_blank" 表示在新标签页打开 -->
+      <p class="bio-intro">
+        Hi, I am <strong>Zitian Guo</strong>, currently a master student at UC San Diego, advised by Prof. <a href="https://cseweb.ucsd.edu/~jmcauley/" target="_blank">Julian McAuley</a> and <a href="https://yupenghou.com/" target="_blank">Yupeng Hou</a>. I obtained my bachelor degree from Renmin University of China, advised by Prof. <a href="https://gsai.ruc.edu.cn/english/qiqi" target="_blank">Qi Qi</a>.
+      </p>
+
+      <!-- 研究兴趣（独立一段） -->
+      <!-- <strong> 标签 = 加粗 -->
+      <p class="bio-intro">
+        My research interests focus on <strong>Generative Recommendation</strong>, <strong>Multimodal Representation Learning</strong>, <strong>Large Language Models</strong>, and <strong>Information Retrieval</strong>.
+      </p>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       第二部分：招生声明（红色 + 黑色混排）
+       ============================================================ -->
+  <!-- hiring-red = 红色加粗部分，hiring-black = 黑色正常部分 -->
+  <section class="about">
+    <p class="hiring-notice">
+      🔥 <span class="hiring-red">I am actively looking for Summer 2026 research opportunities and Fall 2027 Ph.D. positions!</span> <span class="hiring-black">If you are looking a highly motivated student for LLM/VLM related projects, please don't hesitate to drop me an email at <a href="mailto:ztguo@ucsd.edu">ztguo@ucsd.edu</a>.</span>
+    </p>
+  </section>
+
+  <!-- ============================================================
+       第三部分：论文列表
+       ============================================================ -->
+  <section class="section">
+    <h2>Selected Papers</h2>
+    <p class="paper-note">* Equal contribution. &dagger; Corresponding author.</p>
+
+    <div class="paper-list">
+
+      <!-- ====== 论文模板 ======
+           复制整个 <div class="paper-item">...</div> 来添加新论文
+           - paper-title: 论文标题
+           - paper-authors: 作者列表，<strong> 包裹自己的名字来加粗
+           - paper-venue: 会议/期刊名 + [<a href="链接">paper</a>] 或 [<a href="链接">pdf</a>]
+           - &dagger; = † 符号（对应作者标记）
+      -->
+
+      <div class="paper-item">
+        <div class="paper-title">Meet Early or Never: Understanding Fusion Stages in LVLM-based Collaborative Filtering</div>
+        <div class="paper-authors"><strong>Zitian Guo</strong>*, Yueqi Wang*, Yifei Wang, Kibum Kim, Heming Xia, Renrui Zhang, Zhengzhong Tu, Julian McAuley, Yupeng Hou&dagger;</div>
+        <div class="paper-venue">Preprint</div> <!-- 有链接后改成: Preprint [<a href="链接" target="_blank">pdf</a>] -->
+      </div>
+
+      <div class="paper-item">
+        <div class="paper-title">On the Memorization and Generalization of Generative Recommendation</div>
+        <div class="paper-authors">Yijie Ding, <strong>Zitian Guo</strong>, Jiacheng Li, Letian Peng, Shuai Shao, Wei Shao, Xiaoqiang Luo, Luke Simon, Jingbo Shang, Julian McAuley, Yupeng Hou&dagger;</div>
+        <div class="paper-venue">Preprint</div> <!-- 有链接后改成: Preprint [<a href="链接" target="_blank">pdf</a>] -->
+      </div>
+
+      <div class="paper-item">
+        <div class="paper-title">Deterministic-Allocation and Anonymous Joint Advertising in E-commerce Platforms</div>
+        <div class="paper-authors">Zhen Zhang, Luowen Liu, Wanzhi Zhang, <strong>Zitian Guo</strong>, Kun Huang, Qi Qi&dagger;, Qianlong Xie, Xingxing Wang</div>
+        <div class="paper-venue">Preprint [<a href="https://arxiv.org/html/2506.02435v1" target="_blank">paper</a>]</div>
+      </div>
+
+      <div class="paper-item">
+        <div class="paper-title">On Designing the Optimal Integrated Ad Auction in E-commerce Platforms</div>
+        <div class="paper-authors">Yuchao Ma*, Weian Li*, Yuhan Wang, <strong>Zitian Guo</strong>, Yuejia Dou, Qi Qi&dagger;, Changyuan Yu</div>
+        <div class="paper-venue">AAAI 25 Poster [<a href="https://ojs.aaai.org/index.php/AAAI/article/view/33347" target="_blank">paper</a>]</div>
+      </div>
+
+      <div class="paper-item">
+        <div class="paper-title">A Pre-trained Plug-in Mixture-of-LoRAs Model for Transferable Sequential Recommendation</div>
+        <div class="paper-authors">Wenqi Sun, Ruobing Xie, Junjie Zhang, <strong>Zitian Guo</strong>, Wayne Xin Zhao&dagger;, Zhanhui Kang, Ji-Rong Wen</div>
+        <div class="paper-venue">ICASSP 2025 [<a href="https://ieeexplore.ieee.org/document/10890119" target="_blank">paper</a>]</div>
+      </div>
+
+      <!-- 添加新论文：复制上面任意一个 paper-item 块，修改标题/作者/链接即可 -->
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       第四部分：教育经历
+       ============================================================ -->
+  <section class="section">
+    <h2>Education</h2>
+
+    <div class="edu-list">
+
+      <!-- ====== 教育经历模板 ======
+           复制整个 <div class="edu-item">...</div> 来添加新学校
+           - edu-logo: 校徽图片（放在 homepage/ 目录下，支持 png/svg/jpg）
+           - edu-degree: 学位 + 学校名
+           - edu-detail: 年份、专业、导师等细节
+      -->
+
+      <div class="edu-item">
+        <div class="edu-logo">
+          <img src="ucsd.png" alt="UCSD">
+        </div>
+        <div class="edu-info">
+          <div class="edu-degree">M.S., University of California, San Diego</div>
+          <div class="edu-detail">2025 &ndash; present, Electrical &amp; Computer Engineering</div>
+          <div class="edu-detail">Advisor: Prof. <a href="https://cseweb.ucsd.edu/~jmcauley/" target="_blank">Julian McAuley</a></div>
+        </div>
+      </div>
+
+      <div class="edu-item">
+        <div class="edu-logo">
+          <img src="ruc.png" alt="RUC">
+        </div>
+        <div class="edu-info">
+          <div class="edu-degree">B.A., Renmin University of China</div>
+          <div class="edu-detail">2021 &ndash; 2025, School of Economics</div>
+          <div class="edu-detail">Advisor: Prof. <a href="https://gsai.ruc.edu.cn/english/qiqi" target="_blank">Qi Qi</a></div>
+        </div>
+      </div>
+
+      <div class="edu-item">
+        <div class="edu-logo">
+          <img src="ucdavis.svg" alt="UC Davis">
+        </div>
+        <div class="edu-info">
+          <div class="edu-degree">Exchange, University of California, Davis</div>
+          <div class="edu-detail">2024, School of Economics</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       第五部分：Beyond Academics（音乐经历）
+       ============================================================ -->
+  <section class="section">
+    <h2>Beyond Academics</h2>
+    <p>
+      I am a lifelong lover of classical and rock music. You will often find me with a violin or timpani in hand, or collaborating with a symphony orchestra. Playing music is, and always will be, a core part of who I am.
+    </p>
+    <p>Here are a few highlights from my musical journey:</p>
+
+    <!-- 左边文字 + 右边图片轮播 的并排布局 -->
+    <div class="music-row">
+
+      <!-- 左侧：两条音乐经历的文字描述 -->
+      <div class="music-texts">
+        <!-- 第一条：小提琴 -->
+        <div class="music-entry">
+          <div class="music-title">
+            <!-- 曲目名链接到视频 -->
+            <a href="https://www.youtube.com/watch?v=mFWMxM7rdgo" target="_blank">Saint-Sa&euml;ns: Danse Macabre Op.40</a>
+          </div>
+          <div class="music-desc">🎻 Honored to act as concertmaster and play the violin solo with Beijing Symphony Orchestra</div>
+        </div>
+        <!-- 第二条：定音鼓 -->
+        <div class="music-entry">
+          <div class="music-title">
+            <a href="https://b23.tv/6bsMjBH" target="_blank">Beethoven: Symphony No. 5 &ldquo;Fate&rdquo; Op.67</a>
+          </div>
+          <div class="music-desc">🥁 Playing the timpani in RUC Symphony Orchestra</div>
+        </div>
+      </div>
+
+      <!-- 右侧：演出照片轮播 -->
+      <!-- 图片点击跳转到对应视频链接 -->
+      <!-- 添加更多图片：加 <a><img class="music-slide"></a> + 一个 <span class="music-dot"> -->
+      <div class="music-carousel">
+        <div class="music-carousel-inner">
+          <a href="https://www.youtube.com/watch?v=mFWMxM7rdgo" target="_blank"><img src="3.jpg" alt="Violin performance" class="music-slide active"></a>
+          <a href="https://b23.tv/6bsMjBH" target="_blank"><img src="4.jpg" alt="Timpani performance" class="music-slide"></a>
+        </div>
+        <button class="music-carousel-btn music-prev" aria-label="Previous">&#8249;</button>
+        <button class="music-carousel-btn music-next" aria-label="Next">&#8250;</button>
+        <div class="music-carousel-dots">
+          <span class="music-dot active"></span>
+          <span class="music-dot"></span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       页脚
+       ============================================================ -->
+  <footer>
+    <p>&copy; 2025 Zitian Guo. Last updated: March 2025.</p>
+  </footer>
+
+</div>
+
+<!-- ============================================================
+     JavaScript：轮播交互逻辑
+     ============================================================ -->
+<script>
+  // ====== 头像轮播（手动翻页，不自动） ======
+  const imgs = document.querySelectorAll('.carousel-img');
+  const dots = document.querySelectorAll('.dot');
+  let current = 0;
+
+  function showSlide(idx) {
+    imgs[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (idx + imgs.length) % imgs.length;
+    imgs[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+
+  // 左右箭头点击
+  document.querySelector('.carousel-btn.prev').addEventListener('click', () => showSlide(current - 1));
+  document.querySelector('.carousel-btn.next').addEventListener('click', () => showSlide(current + 1));
+  // 底部圆点点击
+  dots.forEach((dot, i) => dot.addEventListener('click', () => showSlide(i)));
+
+  // ====== 音乐照片轮播（6秒自动翻页） ======
+  const mSlides = document.querySelectorAll('.music-slide');
+  const mLinks = document.querySelectorAll('.music-carousel-inner > a');
+  const mDots = document.querySelectorAll('.music-dot');
+  let mCur = 0;
+
+  function showMusicSlide(idx) {
+    mSlides[mCur].classList.remove('active');
+    mLinks[mCur].style.zIndex = 0;
+    mDots[mCur].classList.remove('active');
+    mCur = (idx + mSlides.length) % mSlides.length;
+    mSlides[mCur].classList.add('active');
+    mLinks[mCur].style.zIndex = 1;
+    mDots[mCur].classList.add('active');
+  }
+
+  // 左右箭头点击
+  document.querySelector('.music-prev').addEventListener('click', () => showMusicSlide(mCur - 1));
+  document.querySelector('.music-next').addEventListener('click', () => showMusicSlide(mCur + 1));
+  // 底部圆点点击
+  mDots.forEach((d, i) => d.addEventListener('click', () => showMusicSlide(i)));
+  // 每6秒自动翻页（不想自动翻：删掉下面这行）
+  setInterval(() => showMusicSlide(mCur + 1), 6000);
+</script>
+
+</body>
+</html>

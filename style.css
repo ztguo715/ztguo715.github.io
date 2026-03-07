@@ -1,0 +1,509 @@
+/* ================================================================
+   全局基础样式
+   ================================================================ */
+
+/* 清除所有元素的默认边距和内边距，统一盒模型 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* 让 width/height 包含 padding 和 border */
+}
+
+body {
+  /* 字体优先级：Source Sans 3 > Segoe UI > 系统无衬线字体 */
+  /* 换字体：改这里，同时改 index.html 里的 Google Fonts 链接 */
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+
+  color: #000;           /* 全局文字颜色（深灰），改成 #000 就是纯黑 */
+  background: #fafaf8;   /* 页面背景色（微暖白），改成 #fff 就是纯白 */
+  line-height: 1.5;      /* 行高（1.5 = 字号的 1.5 倍），越大行间距越宽 */
+  font-size: 19px;       /* ★ 全局基础字号，改这一个值就能整体放大/缩小 */
+}
+
+/* 全局链接样式 */
+a {
+  color: #2563eb;        /* 链接颜色（蓝色），改这里影响所有链接 */
+  text-decoration: none; /* 去掉默认下划线 */
+}
+a:hover {
+  text-decoration: underline; /* 鼠标悬停时显示下划线 */
+}
+
+/* ================================================================
+   页面容器（控制整体宽度和居中）
+   ================================================================ */
+.container {
+  max-width: 940px;          /* ★ 页面最大宽度，想更宽改大这个值（如 1080px） */
+  margin: 0 auto;            /* 水平居中 */
+  padding: 50px 24px 40px;   /* 上50 左右24 下40 的内边距 */
+}
+
+/* ================================================================
+   第一部分：顶部区域（头像 + 名字 + 简介）
+   ================================================================ */
+
+/* 整个顶部区域：左右并排布局 */
+.bio-section {
+  display: flex;             /* 弹性布局（左右排列） */
+  gap: 36px;                 /* 头像和文字之间的间距 */
+  align-items: flex-start;   /* 顶部对齐 */
+  margin-bottom: 30px;       /* 和下方内容的间距 */
+}
+
+/* 头像容器 */
+.bio-photo {
+  flex-shrink: 0;            /* 不允许被压缩 */
+  width: 220px;              /* ★ 头像区域宽度，和下面 .carousel 的 width 保持一致 */
+}
+
+/* ── 头像轮播 ── */
+
+/* 轮播外框 */
+.carousel {
+  position: relative;        /* 为内部绝对定位元素（箭头、圆点）提供参考 */
+  width: 220px;              /* ★ 轮播宽度 */
+  height: 270px;             /* ★ 轮播高度，调大/小改变照片显示区域 */
+  border-radius: 12px;       /* 圆角大小，0 = 直角，50% = 圆形 */
+  overflow: hidden;          /* 超出部分隐藏（裁切图片） */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10); /* 阴影：x偏移 y偏移 模糊半径 颜色 */
+}
+
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 轮播中的每张图片 */
+.carousel-img {
+  position: absolute;        /* 所有图片叠在一起 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* 保持比例填满容器，多余部分裁切 */
+  opacity: 0;                /* 默认透明（隐藏） */
+  transition: opacity 0.6s ease; /* 淡入淡出动画，0.6s = 动画时长 */
+}
+
+/* 当前显示的图片 */
+.carousel-img.active {
+  opacity: 1;                /* 完全显示 */
+}
+
+/* 左右箭头按钮 */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%); /* 垂直居中 */
+  background: rgba(255,255,255,0.7); /* 半透明白色背景 */
+  border: none;
+  font-size: 22px;           /* 箭头符号大小 */
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;        /* 圆形按钮 */
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;                /* 默认隐藏 */
+  transition: opacity 0.3s;
+}
+
+/* 鼠标悬停在轮播上时才显示箭头 */
+.carousel:hover .carousel-btn {
+  opacity: 1;
+}
+
+.carousel-btn.prev { left: 6px; }   /* 左箭头位置 */
+.carousel-btn.next { right: 6px; }  /* 右箭头位置 */
+
+/* 底部圆点指示器容器 */
+.carousel-dots {
+  position: absolute;
+  bottom: 8px;               /* 距底部的距离 */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 6px;                  /* 圆点之间的间距 */
+}
+
+/* 单个圆点 */
+.dot {
+  width: 7px;                /* 圆点大小 */
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5); /* 半透明白（未选中） */
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+/* 当前选中的圆点 */
+.dot.active {
+  background: #fff;          /* 纯白（选中） */
+}
+
+/* ── 右侧文字区域 ── */
+
+.bio-text {
+  padding-top: 8px;          /* 文字区域顶部微调，和头像顶部对齐 */
+}
+
+/* 名字 */
+.bio-text h1 {
+  font-size: 35px;           /* ★ 名字字号 */
+  font-weight: 700;          /* 加粗程度：400=正常 600=半粗 700=粗 */
+  margin-bottom: 6px;
+  color: #000;            /* 近黑色 */
+}
+
+/* 名字旁边的邮件图标 */
+.email-icon {
+  font-size: 20px;           /* 图标大小 */
+  color: #555;               /* 默认灰色 */
+  text-decoration: none;
+  vertical-align: middle;    /* 和文字垂直居中对齐 */
+  margin-left: 8px;          /* 和名字的间距 */
+}
+
+.email-icon:hover {
+  color: #2563eb;            /* 悬停变蓝 */
+  text-decoration: none;
+}
+
+/* 自我介绍段落 */
+.bio-intro {
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 18px;           /* ★ 介绍文字字号 */
+  color: #000;
+  line-height: 1.5;
+}
+
+/* ================================================================
+   第二部分：招生声明
+   ================================================================ */
+
+.about {
+  margin-bottom: 36px;       /* 和下方 Papers 区域的间距 */
+}
+
+.about p {
+  margin-bottom: 12px;
+}
+
+.hiring-notice {
+  font-size: 19px;           /* 招生声明字号 */
+}
+
+/* 🔥 红色加粗部分（"I am actively looking..."） */
+.hiring-red {
+  color: #c0392b;            /* ★ 红色，可以换成其他颜色如 #e74c3c */
+  font-weight: 700;
+}
+
+/* 后半句黑色正常字重 */
+.hiring-black {
+  color: #000;
+  font-weight: 400;
+}
+
+/* 招生声明中的链接 */
+.hiring-notice a {
+  color: #2563eb;            /* 蓝色链接 */
+  font-weight: 600;
+}
+
+/* ================================================================
+   通用 Section 样式（Papers / Education / Beyond Academics 共用）
+   ================================================================ */
+
+.section {
+  margin-bottom: 36px;       /* 每个 section 之间的间距 */
+}
+
+/* Section 标题（如 "Selected Papers"、"Education"） */
+.section h2 {
+  font-size: 24px;           /* ★ section 标题字号 */
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #c0392b; /* ★ 标题下划线颜色（红色），改颜色改这里 */
+}
+
+/* ================================================================
+   第三部分：论文列表
+   ================================================================ */
+
+/* "* Equal contribution" 那行小字 */
+.paper-note {
+  font-size: 19px;
+  color: #888;               /* 灰色 */
+  margin-bottom: 16px;
+}
+
+/* 论文列表容器 */
+.paper-list {
+  display: flex;
+  flex-direction: column;    /* 纵向排列 */
+  gap: 18px;                 /* 论文之间的间距 */
+}
+
+/* 单篇论文 */
+.paper-item {
+  padding-left: 14px;        /* 左侧内边距（文字和蓝线的距离） */
+  border-left: 3px solid #2563eb; /* ★ 左侧蓝色竖线，改颜色/粗细改这里 */
+}
+
+/* 论文标题 */
+.paper-title {
+  font-weight: 600;
+  font-size: 19px;           /* ★ 论文标题字号 */
+  color: #000;
+  margin-bottom: 3px;
+}
+
+/* 作者列表 */
+.paper-authors {
+  font-size: 16px;           /* ★ 作者字号 */
+  color: #555;
+  margin-bottom: 3px;
+}
+
+/* 会议/期刊名 + 链接 */
+.paper-venue {
+  font-size: 15.5px;
+  color: #777;
+}
+
+.paper-venue a {
+  color: #2563eb;
+}
+
+/* ================================================================
+   第四部分：教育经历
+   ================================================================ */
+
+/* 教育经历列表容器 */
+.edu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;                 /* 每所学校之间的间距 */
+}
+
+/* 单个学校（左校徽 + 右文字） */
+.edu-item {
+  display: flex;
+  align-items: flex-start;   /* 顶部对齐 */
+  gap: 16px;                 /* 校徽和文字的间距 */
+}
+
+/* 校徽容器 */
+.edu-logo {
+  flex-shrink: 0;            /* 不压缩 */
+  width: 56px;               /* ★ 校徽显示尺寸，改大/小这里 */
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 校徽图片 */
+.edu-logo img {
+  max-width: 56px;           /* 和容器保持一致 */
+  max-height: 56px;
+  object-fit: contain;       /* 保持比例，不裁切 */
+}
+
+.edu-info {
+  padding-top: 2px;
+}
+
+/* 学位 + 学校名 */
+.edu-degree {
+  font-weight: 600;
+  font-size: 19px;           /* ★ 学校名字号 */
+  color: #000;
+}
+
+/* 年份、专业、导师 */
+.edu-detail {
+  font-size: 17px;           /* ★ 详情字号 */
+  color: #555;
+}
+
+/* ================================================================
+   第五部分：Beyond Academics（音乐经历）
+   布局：左侧文字 | 右侧图片轮播
+   ================================================================ */
+
+/* 左右并排容器 */
+.music-row {
+  display: flex;
+  align-items: stretch;      /* 左右等高 */
+  gap: 24px;                 /* 文字和图片的间距 */
+  margin-top: 16px;
+}
+
+/* 左侧文字区 */
+.music-texts {
+  flex: 1;                   /* 占据剩余所有宽度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* 垂直居中 */
+  gap: 20px;                 /* 两条经历之间的间距 */
+}
+
+/* 曲目标题 */
+.music-title {
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.music-title a {
+  color: #2563eb;
+}
+
+/* 描述文字 */
+.music-desc {
+  font-size: 16px;
+  color: #555;
+}
+
+/* ── 右侧：演出照片轮播 ── */
+
+/* 轮播外框 */
+.music-carousel {
+  flex-shrink: 0;            /* 不被压缩 */
+  position: relative;
+  width: 150px;              /* ★ 图片轮播宽度 */
+  height: 150px;             /* ★ 图片轮播高度 */
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+}
+
+.music-carousel-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 图片外层的 <a> 链接（让图片可点击跳转） */
+.music-carousel-inner > a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 轮播中的每张图片（和头像轮播逻辑相同） */
+.music-slide {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.music-slide.active {
+  opacity: 1;
+}
+
+/* 左右箭头（和头像轮播样式一致，只是尺寸略小） */
+.music-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.music-carousel:hover .music-carousel-btn {
+  opacity: 1;
+}
+
+.music-prev { left: 5px; }
+.music-next { right: 5px; }
+
+/* 底部圆点 */
+.music-carousel-dots {
+  position: absolute;
+  bottom: 7px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.music-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.music-dot.active {
+  background: #fff;
+}
+
+/* ================================================================
+   页脚
+   ================================================================ */
+footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e5e5; /* 顶部细分割线 */
+  text-align: center;
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* ================================================================
+   响应式布局（手机端适配）
+   当屏幕宽度 ≤ 640px 时生效
+   ================================================================ */
+@media (max-width: 640px) {
+  /* 头像和文字改为上下排列 */
+  .bio-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .bio-photo {
+    width: 180px;
+  }
+  .carousel {
+    width: 180px;
+    height: 220px;
+  }
+  /* 音乐区域也改为上下排列 */
+  .music-row {
+    flex-direction: column;
+  }
+  .music-carousel {
+    width: 100%;
+    height: 220px;
+  }
+}

@@ -6,14 +6,14 @@
   <meta name="robots" content="noindex, nofollow"> <!-- 禁止搜索引擎收录 -->
   <title>Visitor Dashboard</title>
 
-  <!-- Leaflet.js 地图 -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet.js 地图（cdnjs 更稳定） -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <!-- Leaflet MarkerCluster 聚类 -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -731,21 +731,54 @@ function refresh(days) {
 
 // ====== 主入口 ======
 async function init() {
-  allVisits = await loadVisits();
+  const mapEl = document.getElementById('visitor-map');
+
+  // 诊断：检查依赖是否加载
+  const diagnostics = {
+    leaflet: typeof L !== 'undefined',
+    markerCluster: typeof L !== 'undefined' && typeof L.markerClusterGroup === 'function',
+    supabaseLib: typeof window.supabase !== 'undefined',
+    supabaseClient: false,
+  };
+
+  console.log('[Dashboard] Dependencies:', diagnostics);
+
+  if (!diagnostics.leaflet) {
+    mapEl.innerHTML = '<div class="map-loading" style="color:#c0392b">Error: Leaflet failed to load. Check your network / ad blocker.</div>';
+    // 即使地图挂了，其他组件仍然尝试渲染
+  }
+
+  try {
+    allVisits = await loadVisits();
+    diagnostics.supabaseClient = supabase !== null;
+    console.log('[Dashboard] Loaded', allVisits.length, 'visits. Supabase client:', diagnostics.supabaseClient);
+  } catch (e) {
+    console.error('[Dashboard] loadVisits failed:', e);
+    allVisits = DEMO_VISITS;
+  }
 
   if (!isConfigured) {
     document.getElementById('demo-badge').style.display = 'inline-block';
   }
 
   // 默认 30 天
-  refresh(30);
+  try {
+    refresh(30);
+  } catch (e) {
+    console.error('[Dashboard] refresh failed:', e);
+    mapEl.innerHTML = '<div class="map-loading" style="color:#c0392b">Error: ' + e.message + '</div>';
+  }
 
   // 筛选按钮
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      refresh(parseInt(btn.dataset.days));
+      try {
+        refresh(parseInt(btn.dataset.days));
+      } catch (e) {
+        console.error('[Dashboard] refresh failed:', e);
+      }
     });
   });
 }

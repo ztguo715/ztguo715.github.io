@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow"> <!-- 禁止搜索引擎收录 -->
+  <title>Visitor Dashboard</title>
+
+  <!-- Leaflet.js 地图 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet MarkerCluster 聚类 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+
+    .dashboard {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .dashboard-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .demo-badge {
+      display: none;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .back-link {
+      font-size: 15px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    /* ====== 统计卡片 ====== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 32px;
+      font-weight: 700;
+      color: #c0392b;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* ====== 地图 ====== */
+    .map-container {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    #visitor-map {
+      height: 450px;
+      width: 100%;
+    }
+
+    .map-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 450px;
+      color: #888;
+      font-size: 16px;
+    }
+
+    /* Leaflet popup 样式 */
+    .map-popup strong { font-size: 14px; }
+    .popup-count { color: #c0392b; font-weight: 600; font-size: 13px; }
+    .popup-date { color: #888; font-size: 12px; }
+
+    /* 聚类标记样式 */
+    .marker-cluster div {
+      background: #c0392b;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    .marker-cluster-small { background: rgba(192, 57, 43, 0.25); }
+    .marker-cluster-medium { background: rgba(192, 57, 43, 0.35); }
+    .marker-cluster-large { background: rgba(192, 57, 43, 0.45); }
+    .marker-cluster-small div,
+    .marker-cluster-medium div,
+    .marker-cluster-large div {
+      background: #c0392b;
+    }
+
+    /* ====== 下半部分：柱状图 + 最近访客 并排 ====== */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    /* ====== 柱状图 ====== */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 160px;
+    }
+
+    .chart-bar-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      position: relative;
+      cursor: default;
+    }
+
+    .chart-bar {
+      width: 100%;
+      background: #e8d5d3;
+      border-radius: 3px 3px 0 0;
+      min-height: 2px;
+      transition: background 0.2s;
+    }
+
+    .chart-bar-wrapper:hover .chart-bar {
+      background: #c0392b;
+    }
+
+    .chart-bar-today {
+      background: #c0392b !important;
+    }
+
+    .chart-label {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+
+    /* 柱状图 tooltip */
+    .chart-bar-wrapper:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: -28px;
+      background: #333;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    /* ====== 最近访客列表 ====== */
+    .recent-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    .recent-item:last-child { border-bottom: none; }
+
+    .recent-flag { font-size: 18px; flex-shrink: 0; }
+
+    .recent-location {
+      flex: 1;
+      color: #333;
+    }
+
+    .recent-time {
+      color: #aaa;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .no-visitors {
+      text-align: center;
+      color: #aaa;
+      padding: 30px;
+      font-size: 14px;
+    }
+
+    /* ====== 国家排名 ====== */
+    .country-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .country-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 14px;
+    }
+
+    .country-bar-bg {
+      flex: 1;
+      height: 22px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .country-bar-fill {
+      height: 100%;
+      background: #e8d5d3;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .country-bar-label {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .country-count {
+      font-size: 13px;
+      color: #888;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* ====== 时间段分布 ====== */
+    .hour-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 100px;
+    }
+
+    .hour-bar-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .hour-bar {
+      width: 100%;
+      background: #e8d5d3;
+      border-radius: 2px 2px 0 0;
+      min-height: 2px;
+      transition: background 0.2s;
+    }
+
+    .hour-bar-wrapper:hover .hour-bar { background: #c0392b; }
+
+    .hour-label {
+      font-size: 9px;
+      color: #aaa;
+      margin-top: 3px;
+    }
+
+    /* ====== 时间筛选 ====== */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .filter-btn {
+      padding: 6px 16px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: #c0392b;
+      color: #fff;
+      border-color: #c0392b;
+    }
+
+    /* ====== 响应式 ====== */
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .bottom-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- 标题栏 -->
+  <div class="dashboard-header">
+    <div>
+      <h1>Visitor Dashboard</h1>
+      <span class="demo-badge" id="demo-badge">DEMO MODE — Configure Supabase for real data</span>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to Homepage</a>
+  </div>
+
+  <!-- 时间筛选 -->
+  <div class="filter-row">
+    <button class="filter-btn" data-days="7">7 Days</button>
+    <button class="filter-btn active" data-days="30">30 Days</button>
+    <button class="filter-btn" data-days="90">90 Days</button>
+    <button class="filter-btn" data-days="0">All Time</button>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-number" id="total-visitors">--</span>
+      <span class="stat-label">Total Visitors</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="today-visitors">--</span>
+      <span class="stat-label">Today</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="week-visitors">--</span>
+      <span class="stat-label">This Week</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="countries-count">--</span>
+      <span class="stat-label">Countries</span>
+    </div>
+  </div>
+
+  <!-- 地图 -->
+  <div class="map-container">
+    <div id="visitor-map"><div class="map-loading">Loading visitor map...</div></div>
+  </div>
+
+  <!-- 柱状图 + 最近访客 -->
+  <div class="bottom-row">
+    <div class="panel">
+      <div class="panel-title">Daily Visits</div>
+      <div id="daily-chart" class="chart-bars"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Recent Visitors</div>
+      <div id="recent-visitors" class="recent-list"></div>
+    </div>
+  </div>
+
+  <!-- 国家排名 + 时间段分布 -->
+  <div class="bottom-row">
+    <div class="panel">
+      <div class="panel-title">Top Countries</div>
+      <div id="country-ranking" class="country-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Hourly Distribution (UTC)</div>
+      <div id="hour-chart" class="hour-chart"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ====== 配置（和 visitor-map.js 保持一致） ======
+const SUPABASE_URL = 'https://dnujfnesbwpoutydjxdl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_JWSDsHUs2WJ0v_NfIJK3hg_LlzSl8TU';
+const isConfigured = !SUPABASE_URL.startsWith('YOUR_');
+
+// ====== Demo 数据 ======
+function generateDemoData() {
+  const cities = [
+    { city: 'San Diego', country: 'United States', cc: 'US', lat: 32.72, lng: -117.16 },
+    { city: 'Beijing', country: 'China', cc: 'CN', lat: 39.90, lng: 116.40 },
+    { city: 'Shanghai', country: 'China', cc: 'CN', lat: 31.23, lng: 121.47 },
+    { city: 'London', country: 'United Kingdom', cc: 'GB', lat: 51.51, lng: -0.13 },
+    { city: 'Tokyo', country: 'Japan', cc: 'JP', lat: 35.68, lng: 139.69 },
+    { city: 'Berlin', country: 'Germany', cc: 'DE', lat: 52.52, lng: 13.41 },
+    { city: 'Sydney', country: 'Australia', cc: 'AU', lat: -33.87, lng: 151.21 },
+    { city: 'São Paulo', country: 'Brazil', cc: 'BR', lat: -23.55, lng: -46.63 },
+    { city: 'Mumbai', country: 'India', cc: 'IN', lat: 19.08, lng: 72.88 },
+    { city: 'Toronto', country: 'Canada', cc: 'CA', lat: 43.65, lng: -79.38 },
+    { city: 'Seoul', country: 'South Korea', cc: 'KR', lat: 37.57, lng: 126.98 },
+    { city: 'Paris', country: 'France', cc: 'FR', lat: 48.86, lng: 2.35 },
+    { city: 'Singapore', country: 'Singapore', cc: 'SG', lat: 1.35, lng: 103.82 },
+    { city: 'Los Angeles', country: 'United States', cc: 'US', lat: 34.05, lng: -118.24 },
+    { city: 'New York', country: 'United States', cc: 'US', lat: 40.71, lng: -74.01 },
+    { city: 'Hong Kong', country: 'China', cc: 'CN', lat: 22.32, lng: 114.17 },
+    { city: 'Taipei', country: 'Taiwan', cc: 'TW', lat: 25.03, lng: 121.57 },
+    { city: 'Amsterdam', country: 'Netherlands', cc: 'NL', lat: 52.37, lng: 4.90 },
+  ];
+
+  const visits = [];
+  for (let i = 0; i < 85; i++) {
+    const c = cities[Math.floor(Math.random() * cities.length)];
+    const daysAgo = Math.floor(Math.random() * 60);
+    const hoursAgo = Math.floor(Math.random() * 24);
+    const t = new Date(Date.now() - daysAgo * 86400000 - hoursAgo * 3600000);
+    visits.push({
+      city: c.city,
+      country: c.country,
+      country_code: c.cc,
+      lat: c.lat + (Math.random() - 0.5) * 0.5,
+      lng: c.lng + (Math.random() - 0.5) * 0.5,
+      visited_at: t.toISOString(),
+    });
+  }
+  return visits.sort((a, b) => b.visited_at.localeCompare(a.visited_at));
+}
+
+const DEMO_VISITS = generateDemoData();
+
+// ====== Supabase ======
+let supabase = null;
+if (isConfigured && window.supabase) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// ====== 全局状态 ======
+let allVisits = [];
+let filteredVisits = [];
+let map = null;
+let markersLayer = null;
+
+// ====== 加载数据 ======
+async function loadVisits() {
+  if (!supabase) return DEMO_VISITS;
+  try {
+    const { data, error } = await supabase
+      .from('visits')
+      .select('city, country, country_code, lat, lng, visited_at')
+      .order('visited_at', { ascending: false })
+      .limit(50000);
+    if (error) throw error;
+    return data && data.length > 0 ? data : DEMO_VISITS;
+  } catch (e) {
+    console.warn('Using demo data:', e.message);
+    return DEMO_VISITS;
+  }
+}
+
+// ====== 时间筛选 ======
+function filterByDays(visits, days) {
+  if (days === 0) return visits;
+  const since = new Date(Date.now() - days * 86400000);
+  return visits.filter(v => new Date(v.visited_at) >= since);
+}
+
+// ====== 初始化/更新地图 ======
+function initOrUpdateMap(visits) {
+  if (!map) {
+    map = L.map('visitor-map', {
+      center: [20, 0],
+      zoom: 2,
+      minZoom: 2,
+      maxZoom: 12,
+      scrollWheelZoom: true,
+      zoomControl: true,
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+  }
+
+  // 清除旧标记
+  if (markersLayer) map.removeLayer(markersLayer);
+
+  markersLayer = L.markerClusterGroup({
+    maxClusterRadius: 50,
+    showCoverageOnHover: false,
+    iconCreateFunction(cluster) {
+      const n = cluster.getChildCount();
+      const size = n >= 50 ? 'large' : n >= 10 ? 'medium' : 'small';
+      return L.divIcon({
+        html: `<div><span>${n}</span></div>`,
+        className: `marker-cluster marker-cluster-${size}`,
+        iconSize: L.point(40, 40),
+      });
+    },
+  });
+
+  // 按位置聚合
+  const locMap = {};
+  visits.forEach(v => {
+    const key = `${v.lat.toFixed(2)},${v.lng.toFixed(2)}`;
+    if (!locMap[key]) locMap[key] = { ...v, count: 0, dates: [] };
+    locMap[key].count++;
+    locMap[key].dates.push(v.visited_at);
+  });
+
+  Object.values(locMap).forEach(loc => {
+    const last = new Date(loc.dates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const marker = L.circleMarker([loc.lat, loc.lng], {
+      radius: Math.min(6 + Math.log2(loc.count) * 3, 20),
+      fillColor: '#c0392b',
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.75,
+    });
+    marker.bindPopup(
+      `<div class="map-popup"><strong>${loc.city}, ${loc.country}</strong><br>` +
+      `<span class="popup-count">${loc.count} visit${loc.count > 1 ? 's' : ''}</span><br>` +
+      `<span class="popup-date">Last: ${last}</span></div>`
+    );
+    markersLayer.addLayer(marker);
+  });
+
+  map.addLayer(markersLayer);
+  if (visits.length > 0) {
+    const bounds = markersLayer.getBounds();
+    if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 5 });
+  }
+}
+
+// ====== 统计卡片 ======
+function updateStats(visits) {
+  const today = new Date().toDateString();
+  const weekAgo = new Date(Date.now() - 7 * 86400000);
+
+  document.getElementById('total-visitors').textContent = visits.length.toLocaleString();
+  document.getElementById('today-visitors').textContent =
+    visits.filter(v => new Date(v.visited_at).toDateString() === today).length.toLocaleString();
+  document.getElementById('week-visitors').textContent =
+    visits.filter(v => new Date(v.visited_at) >= weekAgo).length.toLocaleString();
+  document.getElementById('countries-count').textContent =
+    new Set(visits.map(v => v.country_code || v.country)).size.toLocaleString();
+}
+
+// ====== 每日柱状图 ======
+function renderDailyChart(visits, days) {
+  const el = document.getElementById('daily-chart');
+  const n = days === 0 ? 60 : days;
+  const now = new Date();
+  const dayCounts = {};
+
+  for (let i = 0; i < n; i++) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    dayCounts[d.toISOString().slice(0, 10)] = 0;
+  }
+  visits.forEach(v => {
+    const k = v.visited_at.slice(0, 10);
+    if (k in dayCounts) dayCounts[k]++;
+  });
+
+  const entries = Object.entries(dayCounts).sort((a, b) => a[0].localeCompare(b[0]));
+  const max = Math.max(...entries.map(e => e[1]), 1);
+  const todayKey = now.toISOString().slice(0, 10);
+
+  el.innerHTML = entries.map(([date, count], i) => {
+    const h = Math.max((count / max) * 100, 2);
+    const d = new Date(date + 'T00:00:00');
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const isToday = date === todayKey;
+    const showLabel = i % Math.max(Math.floor(entries.length / 6), 1) === 0 || isToday;
+    return `<div class="chart-bar-wrapper" data-tooltip="${label}: ${count}">
+      <div class="chart-bar ${isToday ? 'chart-bar-today' : ''}" style="height:${h}%"></div>
+      ${showLabel ? `<div class="chart-label">${label}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ====== 最近访客 ======
+function renderRecent(visits) {
+  const el = document.getElementById('recent-visitors');
+  const recent = visits.slice(0, 15);
+  if (!recent.length) { el.innerHTML = '<div class="no-visitors">No visitors yet</div>'; return; }
+
+  el.innerHTML = recent.map(v => {
+    const t = new Date(v.visited_at).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    const flag = v.country_code
+      ? String.fromCodePoint(...[...v.country_code.toUpperCase()].map(c => 0x1F1E6 - 65 + c.charCodeAt(0)))
+      : '';
+    return `<div class="recent-item">
+      <span class="recent-flag">${flag}</span>
+      <span class="recent-location">${v.city}, ${v.country}</span>
+      <span class="recent-time">${t}</span>
+    </div>`;
+  }).join('');
+}
+
+// ====== 国家排名 ======
+function renderCountryRanking(visits) {
+  const el = document.getElementById('country-ranking');
+  const counts = {};
+  visits.forEach(v => {
+    const key = v.country_code || v.country;
+    const name = v.country;
+    if (!counts[key]) counts[key] = { name, code: v.country_code, count: 0 };
+    counts[key].count++;
+  });
+
+  const sorted = Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 10);
+  const max = sorted[0]?.count || 1;
+
+  el.innerHTML = sorted.map(c => {
+    const flag = c.code
+      ? String.fromCodePoint(...[...c.code.toUpperCase()].map(ch => 0x1F1E6 - 65 + ch.charCodeAt(0)))
+      : '';
+    const pct = (c.count / max) * 100;
+    return `<div class="country-item">
+      <span class="recent-flag">${flag}</span>
+      <div class="country-bar-bg">
+        <div class="country-bar-fill" style="width:${pct}%"></div>
+        <span class="country-bar-label">${c.name}</span>
+      </div>
+      <span class="country-count">${c.count}</span>
+    </div>`;
+  }).join('');
+}
+
+// ====== 小时分布 ======
+function renderHourChart(visits) {
+  const el = document.getElementById('hour-chart');
+  const hours = Array(24).fill(0);
+  visits.forEach(v => { hours[new Date(v.visited_at).getUTCHours()]++; });
+  const max = Math.max(...hours, 1);
+
+  el.innerHTML = hours.map((count, h) => {
+    const pct = Math.max((count / max) * 100, 2);
+    return `<div class="hour-bar-wrapper" title="${h}:00 UTC — ${count} visits">
+      <div class="hour-bar" style="height:${pct}%"></div>
+      ${h % 3 === 0 ? `<div class="hour-label">${h}h</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ====== 刷新所有视图 ======
+function refresh(days) {
+  filteredVisits = filterByDays(allVisits, days);
+  initOrUpdateMap(filteredVisits);
+  updateStats(filteredVisits);
+  renderDailyChart(filteredVisits, days);
+  renderRecent(filteredVisits);
+  renderCountryRanking(filteredVisits);
+  renderHourChart(filteredVisits);
+}
+
+// ====== 主入口 ======
+async function init() {
+  allVisits = await loadVisits();
+
+  if (!isConfigured) {
+    document.getElementById('demo-badge').style.display = 'inline-block';
+  }
+
+  // 默认 30 天
+  refresh(30);
+
+  // 筛选按钮
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      refresh(parseInt(btn.dataset.days));
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
